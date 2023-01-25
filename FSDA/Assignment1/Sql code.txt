@@ -1,0 +1,127 @@
+-- First I create a warehouse -- Warehouse_Name = self_warehouse            
+-- Second Create database -- database name = Task            
+            
+            
+            
+                                                          ---- Task 1 ------
+
+Create Database Task;
+CREATE OR REPLACE TABLE Shopping_History(
+            Product varchar(30) not null,
+            Quantity Int not null,
+            Unit_Price Int not null
+);
+
+desc table Shopping_History;
+
+Insert into Shopping_History values ('Milk',10,10);
+Insert into Shopping_History values ('Bread',7,3);
+Insert into Shopping_History values ('Milk',10,8);
+Insert into Shopping_History values ('Bread',5,2);
+Insert into Shopping_History values ('chees',8,23);
+Insert into Shopping_History values ('Icecreame',10,12);
+Insert into Shopping_History values ('Chees',12,34);
+Insert into Shopping_History values ('Icecreame',12,5);
+Insert into Shopping_History values ('Paneer',10,15);
+Insert into Shopping_History values ('Paneer',3,9);
+
+select * from Shopping_History;
+
+select Product,sum(Quantity*Unit_Price) As Total_Price from Shopping_History group by Product;
+
+
+
+                                                     -----  Task 2 ------
+                                                     
+CREATE OR REPLACE TABLE Phone(
+             Name Varchar(50) Not Null,
+             Phone_Number Int Not Null Unique
+);
+
+CREATE OR REPLACE TABLE Calls(
+             id int Not Null,
+             caller Int Not Null ,
+             callee Int Not Null,
+             Duration Int Not Null,
+             unique(id)
+);
+
+Insert Into Phone values('Divy',1234);
+Insert Into Phone values('Ajay',4567);
+Insert Into Phone values('Neha',6789);
+Insert Into Phone values('Sagar',2468);
+Insert Into Phone values('Love',1357);
+Insert Into Phone Values('Mess',3333);
+
+select * from Phone;
+
+Insert Into Calls values(101,1234,3333,5);
+Insert Into Calls values(102,1234,4567,4);
+Insert Into Calls values(103,6789,1234,6);
+Insert Into Calls values(104,2468,3333,9);
+Insert Into Calls values(105,1234,6789,2);
+Insert Into Calls values(106,1357,3333,7);
+Insert Into Calls values(107,4567,2468,1);
+Insert Into Calls values(108,6789,3333,12);
+Insert Into Calls values(109,6789,2468,1);
+
+select * from Calls;
+
+with call_duration as (
+select caller as phone_number, sum(duration) as duration from calls group by caller
+union all
+select callee as phone_number, sum(duration) as duration from calls group by callee
+)
+SELECT Name
+FROM Phone p join call_duration c on c.phone_number = p.phone_number
+GROUP BY name
+HAVING SUM(duration) >= 10
+ORDER BY name;
+
+                                                                --- Task 3 ------
+                                                    
+
+Create Or REPLACE Table transcations (
+      Amount int not null,
+      Date Date  Not Null
+);
+
+select * from transcations;
+
+Insert into transcations values(1000,'2020-01-06');
+Insert into transcations values(-10,'2020-01-14');
+Insert into transcations values(-75,'2020-01-20');
+Insert into transcations values(-5,'2020-01-25');
+Insert into transcations values(-4,'2020-01-29');
+Insert into transcations values(2000,'2020-03-10');
+Insert into transcations values(-75,'2020-03-12');
+Insert into transcations values(-20,'2020-03-15');
+Insert into transcations values(40,'2020-03-15');
+Insert into transcations values(-50,'2020-03-17');
+Insert into transcations values(200,'2020-10-10');
+Insert into transcations values(-200,'2020-10-10');
+
+
+select sum(amount) from transcations;
+
+alter table transcations
+add column month int;
+
+update transcations
+set  month = month(date);
+
+
+(select count(*) from(select month,count(amount),sum(amount) 
+from transcations 
+where amount<0 
+group by month
+having Count(amount)>=3 And Sum(amount)<=-100));
+
+select  
+        sum(amount) - 5*(12-(select count(*) from(select month,count(amount),sum(amount) 
+from transcations 
+where amount<0 
+group by month
+having Count(amount)>=3 And Sum(amount)<=-100))
+) as balance 
+from transcations;
